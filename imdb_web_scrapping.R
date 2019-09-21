@@ -69,7 +69,7 @@ head(description_data)
 #Using CSS selectors to scrape the movie certificate rating section
 certificate_data_html <- html_node(super_node_read,'.certificate')
 
-#Converting the movie certificate rfating data to text
+#Converting the movie certificate rating data to text
 certificate_data <- html_text(certificate_data_html)
 
 #Let's have a look at the movie certificate
@@ -86,3 +86,79 @@ certificate_data[is.na(certificate_data)] <- "Unrated"
 
 #See the distinct values for certificate ratings
 unique(certificate_data)
+
+#Using CSS selectors to scrape the movie runtime section
+runtime_data_html <- html_node(super_node_read,'.runtime')
+
+#Converting the movie runtime data to text
+runtime_data <- html_text(runtime_data_html)
+
+#Let's have a look at the movie runtime
+str(runtime_data)
+head(runtime_data)
+
+#Data-Preprocessing: removing mins and converting it to numerical
+runtime_data<-gsub(" min","",runtime_data)
+runtime_data<-as.numeric(runtime_data)
+
+#Let's have a look at the movie runtime
+str(runtime_data)
+head(runtime_data)
+
+#Using CSS selectors to scrape the movie genre section
+genre_data_html <- html_node(super_node_read,'.genre')
+
+#Converting the movie genre data to text
+genre_data <- html_text(genre_data_html)
+
+#Let's have a look at the movie genre
+str(genre_data)
+head(genre_data)
+
+#Data-Preprocessing: Removing \n
+#Data-Preprocessing: Removing leading and trailing whitespaces
+genre_data <- gsub("\n","",genre_data)
+genre_data <- trimws(genre_data)
+
+#Let's have a look at the movie genre
+str(genre_data)
+head(genre_data)
+
+#Using CSS selectors to scrape the IMDB Rating section
+rating_data_html <- html_node(super_node_read,'.ratings-imdb-rating strong')
+
+#Converting the movie IMDB Rating data to text
+rating_data <- html_text(rating_data_html)
+
+#Let's have a look at the movie IMDB Rating
+str(rating_data)
+head(rating_data)
+
+#Data-Preprocessing: converting ratings to numerical
+rating_data<-as.numeric(rating_data)
+
+#Let's have a look at the movie IMDB Rating
+str(rating_data)
+head(rating_data)
+
+#Using CSS selectors to scrape the Votes section
+votes_data_html <- html_node(super_node_read,'.sort-num_votes-visible span:nth-child(2)')
+
+#Converting the movie Votes data to text
+votes_data <- html_text(votes_data_html)
+
+#Let's have a look at the movie Votes
+str(votes_data)
+head(votes_data)
+
+#Data-Preprocessing: removing commas
+#Removal of "," is required because without this, coercion to numeric values result in NAs
+votes_data<-gsub(",","",votes_data)
+
+#Data-Preprocessing: converting votes to numerical
+votes_data<-as.numeric(votes_data)
+
+#Let's have a look at the votes
+str(votes_data)
+head(votes_data)
+
