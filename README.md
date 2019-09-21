@@ -7,6 +7,6 @@ Skills I intend to pick up through this project:
 2. Setting up Git and GitHub with R Studio
 3. Working with branches in Git
 4. Creating a pull request
-5. Web Scraping
+5. Basics of Web Scraping with R
 6. Exploratory Data Analysis
 7. ggplot2
