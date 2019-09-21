@@ -12,54 +12,77 @@ url <- 'https://www.imdb.com/search/title/?count=100&release_date=2018,2018&titl
 #Reading the HTML code from the website
 webpage <- read_html(url)
 
+#define Super Node
+super_node <- '.mode-advanced'
+
+#Read Html Nodes under super_node
+super_node_read <- html_nodes(webpage,super_node)
+
 #Using CSS selectors to scrape the rankings section
-#html_nodes selects nodes from an html documnet. This helps in easily extracting pieces out of HTML documents
-rank_data_html <- html_nodes(webpage,'.text-primary')
+rank_data_html <- html_node(super_node_read,'.text-primary')
 
 #Converting the ranking data to text
 rank_data <- html_text(rank_data_html)
 
 #Let's have a look at the rankings
 str(rank_data)
+head(rank_data)
 
 #Data-Preprocessing: Converting rankings to numerical
 rank_data<-as.numeric(rank_data)
 
-#Using CSS selectors to scrape the title section
-title_data_html <- html_nodes(webpage,'.lister-item-header a')
+#Let's have another look at the rankings
+head(rank_data)
 
-#Converting the title data to text
+#Using CSS selectors to scrape the movie title section
+title_data_html <- html_node(super_node_read,'.lister-item-header a')
+
+#Converting the movie title data to text
 title_data <- html_text(title_data_html)
 
-#Let's have a look at the title
+#Let's have a look at the rankings
 str(title_data)
+head(title_data)
 
-#Using CSS selectors to scrape the description section
-description_data_html <- html_nodes(webpage,'p:nth-child(4)')
+#Using CSS selectors to scrape the movie description section
+description_data_html <- html_node(super_node_read,'p:nth-child(4)')
 
-#Converting the description data to text
+#Converting the movie description data to text
 description_data <- html_text(description_data_html)
 
-#Let's have a look at the description
+#Let's have a look at the movie description
 str(description_data)
 head(description_data)
 
-#The first description is incorrect. Dropping the same.
-description_data <- description_data[2:101]
-
-#Let's have a look at the description
-str(description_data)
-head(description_data)
-
-#The description contains leading and trailing whitespaces as well as \n. Removing these
-#preprocessing description data
+#There is \n cahracter at the start of the description text. This needs to be removed
 #Data-Preprocessing: Removing \n
-#Difference between gsub and sub is that sub will replace only the first matching instance whereas gsub will replace all matching instance
+#Using gsub instead of sub because gsub will replace all instances of search pattern as against sub which will remove only the first match
 description_data <- gsub("\n","",description_data)
 
-#Data-Preprocessing: Removing leading and trailing whitespaces if any
+#Data-Preprocessing: Removing leading and trailing whitespaces
 description_data <- trimws(description_data)
 
-#Let's have a look at the description
+#Let's have a look at the movie description
 str(description_data)
 head(description_data)
+
+#Using CSS selectors to scrape the movie certificate rating section
+certificate_data_html <- html_node(super_node_read,'.certificate')
+
+#Converting the movie certificate rfating data to text
+certificate_data <- html_text(certificate_data_html)
+
+#Let's have a look at the movie certificate
+str(certificate_data)
+head(certificate_data)
+
+#There are values like UA, U/A which are same but a different way of representation
+#See the distinct values for certificate ratings to understand which all could be clubbed
+unique(certificate_data)
+
+#Data-Preprocessing: Modifying values of UA to U/A and NA to "Unrated"
+certificate_data[certificate_data == "UA"] <- "U/A"
+certificate_data[is.na(certificate_data)] <- "Unrated"
+
+#See the distinct values for certificate ratings
+unique(certificate_data)
