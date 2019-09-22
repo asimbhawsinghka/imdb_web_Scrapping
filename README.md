@@ -1,8 +1,5 @@
 # imdb_web_Scrapping
-This is my first project on R and I am following Analytics Vidhya article to complete this project.
-https://www.analyticsvidhya.com/blog/2017/03/beginners-guide-on-web-scraping-in-r-using-rvest-with-hands-on-knowledge/
-
-This project aims to capture data of 100 most popular movies of 2018, from the IMDB website, specifically:
+This is my first project on R  and aims to capture data of 100 most popular movies of 2018, from the IMDB website, specifically:
 1. Rank of the movie according to popularity
 2. Title of the movie
 3. Description of the movie
@@ -16,7 +13,7 @@ This project aims to capture data of 100 most popular movies of 2018, from the I
 11. Gross earnings in Million US Dollars, and
 12. Viewer Certificate issued to the movie
 
-Subsequently, exploratory data analysis is to be done on this data set to draw any insights.
+Subsequently, I will explore this data to draw any insights.
 
 Skills I intend to pick up through this project:
 1. Version Control
@@ -26,3 +23,6 @@ Skills I intend to pick up through this project:
 5. Basics of Web Scraping with R
 6. Exploratory Data Analysis
 7. ggplot2
+
+I am following and building up on the following Analytics Vidhya article:
+https://www.analyticsvidhya.com/blog/2017/03/beginners-guide-on-web-scraping-in-r-using-rvest-with-hands-on-knowledge/
