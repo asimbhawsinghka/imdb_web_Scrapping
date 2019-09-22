@@ -259,3 +259,13 @@ movies_df <- movies_df %>% mutate(
 
 #Structure of Data Frame
 str(movies_df)
+
+#Let's see the summary of the dataset
+summary(movies_df)
+#Following are the observations:
+# 1. Minimum runtime is 85 mins (1 hour 25 mins) and maximum is 159 (~2 hours 40 mins). The mean runtime is 117 mins (~ 2 hours).
+# 2. Even the worst movie got a rating of 3.8. The highest rating is 8.5. Majority movies were above average at mean ratings score of 6.7
+# 3. Number of votes recived varies wildly in the range of 131 - 7 Lakhs.
+# 4. The minimum gross earning is just 50,000 and the highest grossing movie garnered 70 Crore USD.
+# 5. Majority of the movies were R rated. However, certificate_rating data also has Unrated movies.
+
