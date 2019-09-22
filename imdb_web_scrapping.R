@@ -171,3 +171,91 @@ directors_data <- html_text(directors_data_html)
 #Let's have a look at the movie Directors
 str(directors_data)
 head(directors_data)
+
+#Using CSS selectors to scrape the Actors section
+actors_data_html <- html_node(super_node_read,'.lister-item-content .ghost+ a')
+
+#Converting the movie Actors data to text
+actors_data <- html_text(actors_data_html)
+
+#Let's have a look at the movie Actors
+str(actors_data)
+head(actors_data)
+
+#Using CSS selectors to scrape the Metascore section
+metascore_data_html <- html_node(super_node_read,'.metascore')
+
+#Converting the movie Metascore data to text
+metascore_data <- html_text(metascore_data_html)
+
+#Let's have a look at the movie Metascore
+str(metascore_data)
+head(metascore_data)
+
+#Data-Preprocessing: Removing leading and trailing whitespaces
+#Data-Preprocessing: Converting to number
+metascore_data <- trimws(metascore_data)
+metascore_data <- as.numeric(metascore_data)
+
+#Let's have a look at the movie Metascore
+str(metascore_data)
+head(metascore_data)
+
+#Check how many NA exists
+sum(is.na(metascore_data))
+
+#Using CSS selectors to scrape the Gorss section
+gross_data_html <- html_node(super_node_read,'.sort-num_votes-visible span:nth-child(5)')
+
+#Converting the movie Gross data to text
+gross_data <- html_text(gross_data_html)
+
+#Let's have a look at the movie Gross
+str(gross_data)
+head(gross_data)
+
+#Data-Preprocessing: Removing $
+#Data-Preprocessing: Removing M
+#Data-Preprocessing: Converting to number
+gross_data <- gsub("\\$","",gross_data)
+gross_data <- gsub("M","",gross_data)
+gross_data <- as.numeric(gross_data)
+
+#Let's have a look at the movie Gross
+str(gross_data)
+head(gross_data)
+
+#Check how many NA exists
+sum(is.na(metascore_data))
+
+#Summarise Gross
+summary(gross_data)
+
+#combining all data in a dataframe
+movies_df <- data.frame(
+  rank = rank_data,
+  title = title_data,
+  description = description_data,
+  runtime = runtime_data,
+  genre = genre_data,
+  rating = rating_data,
+  votes = votes_data,
+  metascore = metascore_data,
+  directors = directors_data,
+  actors = actors_data,
+  gross_earning_in_mil_doll = gross_data,
+  certificate_rating = certificate_data
+)
+
+#Structure of Data Frame
+str(movies_df)
+
+#Correcting data frame variables from factor to character
+movies_df <- movies_df %>% mutate(
+  title = as.character(title),
+  description = as.character(description),
+  genre = as.character(genre)
+)
+
+#Structure of Data Frame
+str(movies_df)
