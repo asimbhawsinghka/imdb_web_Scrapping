@@ -158,7 +158,16 @@ votes_data<-gsub(",","",votes_data)
 #Data-Preprocessing: converting votes to numerical
 votes_data<-as.numeric(votes_data)
 
-#Let's have a look at the votes
+#Let's have a look at the Votes
 str(votes_data)
 head(votes_data)
 
+#Using CSS selectors to scrape the Directors section
+directors_data_html <- html_node(super_node_read,'p a:nth-child(1)')
+
+#Converting the movie Directors data to text
+directors_data <- html_text(directors_data_html)
+
+#Let's have a look at the movie Directors
+str(directors_data)
+head(directors_data)
