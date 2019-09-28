@@ -6,6 +6,8 @@ install.packages("rvest")
 library(tidyverse)
 library(rvest)
 
+# ========== Web Scraping ==========
+
 #Specifying the url for desired website to be scraped
 url <- 'https://www.imdb.com/search/title/?count=100&release_date=2018,2018&title_type=feature'
 
@@ -260,6 +262,16 @@ movies_df <- movies_df %>% mutate(
 #Structure of Data Frame
 str(movies_df)
 
+# Save the data in a csv file
+write.csv(movies_df,"movies_2018.csv", row.names = FALSE)
+
+# ========== Exploratory Data Analysis ==========
+
+# Read the data 
+movies_df <- read.csv("movies_2018.csv")
+
+# ========== Univariate EDA ==========
+
 #Let's see the summary of the dataset
 summary(movies_df)
 #Following are the observations:
@@ -436,3 +448,59 @@ hist(movies_df$gross_earning_in_mil_doll)
 # However, there are 20 missing values, represnting 5% of the entire dataset. Hence ignoring this is also considerable loss of data.
 # One way to impute is basis the ratings and votesreceived by the movie. Ofcource it needs to be tested if Gross is dependent on ratings and votes.
 # We will take this up in bivariate analysis
+
+# ========== Bivariate Analysis ==========
+# The above plots could also be done on ggplot2 but will be using ggplot2 extensively now
+
+# ========== runtime vs genre ==========
+# Runtime is a continuous variable whereas genre is a categorical variable
+# Scale of measurement for the two variables:
+#  1. runtime - Ratio
+#  2. genre - Nominal
+
+# We are interested in knowing average runtime across genres. Does runtime vary across genres?
+# Consequently a bar graph representing average runtime in the y axis and genre across x axis should be helpful
+# There is one issue though. A movie is calssified under multiple genres. Hence, let us assume that the first genre is the primary genre of the movie
+# Let us extract the primary genre of the movie
+movies_df <- movies_df %>% mutate(primary_genre = gsub(",.*","",genre))
+movies_df <- movies_df %>% mutate(primary_genre = trimws(primary_genre))
+movies_df <- movies_df %>% mutate(primary_genre = as.factor(primary_genre))
+
+# Also let us count the number of genres a movie spans
+movies_df <- movies_df %>% mutate(genre_count = str_count(genre,",") + 1)
+
+# Let's explore the movies_df structure now
+str(movies_df)
+# Thus, there are 10 primary genres in the given data set
+
+# Let us plot the average runtime across genres
+# First, we must calculate the average runtime across genres
+avg_rt_genres <- movies_df %>% group_by(primary_genre) %>% summarise(average_runtime = mean(runtime))
+# Let us see the data
+avg_rt_genres
+# The bar chart for this data
+avg_rt_genres_plot <- ggplot(avg_rt_genres,
+                             aes(x = primary_genre, y = average_runtime))
+avg_rt_genres_plot +
+  geom_bar(stat = "identity") +
+  labs( title = "Movie Runtime across Genres",
+        subtitle = "Average movie runtime across genres in 100 most popular movies of 2018 on IMDB",
+        x = "Movie Genres",
+        y = "Runtime (in mins)"
+  )
+# From the plot, it is clear that Fanatay movies run the longest whereas horror movies run the shortest
+# Other genres like Action, Adventure, Comedy run at around 120 mins
+
+# Let's also explore average runtime basis the number of genres a movie spans
+avg_rt_num_genres <- movies_df %>% ungroup() %>% group_by(genre_count) %>% summarise(average_runtime = mean(runtime))
+avg_rt_num_genres
+# Let's plot this data in a bar chart
+avg_rt_num_genres_plot <- ggplot(avg_rt_num_genres,
+                                 aes(x = genre_count, y = average_runtime))
+avg_rt_num_genres_plot + 
+  geom_bar(stat = "identity") + 
+  labs( title = "Movie Runtime",
+        subtitle = "Average movie runtime across number of genres a movie spans in the 100 most popular movies of 2018 on IMDB",
+        x = "number of Genres",
+        y = "Runtime (in mins)"
+  )
