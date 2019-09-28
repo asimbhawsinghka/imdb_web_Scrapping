@@ -306,7 +306,7 @@ movies_df[which.min(movies_df$runtime),]
 # The horror movie, Hex had the lowest runtime of 85 mins (just under 1 hour 30 mins)
 
 movies_df[which.max(movies_df$runtime),]
-#The crime drama Mel Gibson movie, Dragged Across Concrete ahd the highest runtime of 159 mins (~2 hours 20 mins)
+#The crime drama Mel Gibson movie, Dragged Across Concrete had the highest runtime of 159 mins (~2 hours 20 mins)
 
 # ========== EDA on ratings ==========
 # Lets see the box plot for ratings
@@ -476,8 +476,10 @@ str(movies_df)
 # Let us plot the average runtime across genres
 # First, we must calculate the average runtime across genres
 avg_rt_genres <- movies_df %>% group_by(primary_genre) %>% summarise(average_runtime = mean(runtime))
+avg_rt_genres <- avg_rt_genres[order(avg_rt_genres$average_runtime, decreasing = TRUE),]
 # Let us see the data
 avg_rt_genres
+
 # The bar chart for this data
 avg_rt_genres_plot <- ggplot(avg_rt_genres,
                              aes(x = primary_genre, y = average_runtime))
@@ -490,6 +492,22 @@ avg_rt_genres_plot +
   )
 # From the plot, it is clear that Fanatay movies run the longest whereas horror movies run the shortest
 # Other genres like Action, Adventure, Comedy run at around 120 mins
+
+
+# We must also be aware of the frequency of movies by genre
+movies_df %>% ungroup()
+
+ggplot(movies_df,
+       aes(x=primary_genre)) +
+  geom_bar() +
+  labs( title = "Movies by Genre",
+        subtitle = "Frequency of 100 most popular movies of 2018 on IMDB by genre",
+        y = "Counts",
+        x = "Genres")
+
+# Lets see the frequencies in a tabular format
+table(movies_df$primary_genre)
+# Can we now generalise that fantasy movies run the longest? Probably no.
 
 # Let's also explore average runtime basis the number of genres a movie spans
 avg_rt_num_genres <- movies_df %>% ungroup() %>% group_by(genre_count) %>% summarise(average_runtime = mean(runtime))
