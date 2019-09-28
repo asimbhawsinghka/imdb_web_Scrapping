@@ -337,7 +337,7 @@ movies_df
 # The argument ties.method determines the result of the rankings in case ties are encountered.
 # The following values can be input for the argument - "average","first", "last", "max", "min"
 # In our case we will be using first
-movies_df <- movies_df %>% mutate(meta_rank =rank(-metascore_data, ties.method = "first"))
+movies_df <- movies_df %>% mutate(meta_rank =rank(-metascore, ties.method = "first"))
 movies_df <- movies_df %>% mutate(ratings_rank =rank(-rating, ties.method = "first"))
 movies_df
 
@@ -381,3 +381,58 @@ movies_df[movies_df$votes >300000,-3]
 # Are these movies the critically acclaimed?
 movies_df[movies_df$votes >300000,-3]
 # No. The public does not seem to agree with the critics yet again. Commercial success of the film does not seem to be influenced by critic's ratings.
+
+# ========== EDA on Metascore ======
+# Metascore indicates how critics rated the movie on 100
+# Basic analysis on metascore indicates 4 missing value
+# Lets infer about the distribution of metascore with missing values
+boxplot(movies_df$metascore)
+# Distribution of Metascore is approximately a uniform normal distribution and there are no outliers.
+# Since the mean is slightly less than the median, the distribution is slightly negatively skewed.
+
+# Lets impute the missing values with median of metascore.
+metascore_median <- median(movies_df$metascore, na.rm = TRUE)
+movies_df <- movies_df %>% mutate(metascore = if_else(is.na(metascore),metascore_median,metascore))
+
+# Check for any NA values
+sum(is.na(movies_df$metascore))
+summary(movies_df$metascore)
+
+# Let's check the histogram of metascore
+hist(movies_df$metascore)
+# More than 25 movies were scored by most critics between 60 and 70 of 100.
+
+# Let's recompute the metascore ratings after imputation
+movies_df <- movies_df %>% mutate(meta_rank =rank(-metascore, ties.method = "first"))
+
+# Which movies were most liked by critics?
+movies_df[order(movies_df$meta_rank)[1:5],-3]
+
+# Which movies were least liked by critics?
+movies_df[order(movies_df$meta_rank, decreasing = TRUE)[1:5],-3]
+# Holmes & Watson received the least score from critics and viewers alike!
+# Meta_rank as well as Ratings_rank for the movie is 100
+
+# =========== EDA on gross_earning_on_mil_doll ==========
+# Let's see the summary statistic for gross earnings
+summary(movies_df$gross_earning_in_mil_doll)
+# There are 20 missing values
+# The data is highly positively skewed
+
+# Let's plot the boxplot
+boxplot(movies_df$gross_earning_in_mil_doll)
+# There are 4 outlier values. These movies garnered reveneues in upwards of 350 million USD
+
+# Which movies were these?
+movies_df[movies_df$gross_earning_in_mil_doll>350,-3]
+# We see a lot of output since we have 20 missing values. we must exclude them for this analysis here
+movies_df %>% filter(!is.na(gross_earning_in_mil_doll)) %>% filter(gross_earning_in_mil_doll>350)
+# They are Avengers:Infinity War, Black Panther, Jurassic World: Fallen Kingdom and Incredibles 2
+
+# Let's plot the histogram for the gross earnings
+hist(movies_df$gross_earning_in_mil_doll)
+
+# In case of gross earnings, mean imputation or median imputation is not right since it will then provide an untrue picture of the dataset.
+# However, there are 20 missing values, represnting 5% of the entire dataset. Hence ignoring this is also considerable loss of data.
+# One way to impute is basis the ratings and votesreceived by the movie. Ofcource it needs to be tested if Gross is dependent on ratings and votes.
+# We will take this up in bivariate analysis
