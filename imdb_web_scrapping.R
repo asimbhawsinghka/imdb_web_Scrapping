@@ -480,6 +480,10 @@ avg_rt_genres <- avg_rt_genres[order(avg_rt_genres$average_runtime, decreasing =
 # Let us see the data
 avg_rt_genres
 
+# We must reorder the factorsin primary_genre before plotting if we intend to display the graph in an oredrly fashion
+levels(avg_rt_genres$primary_genre)
+avg_rt_genres$primary_genre <- factor(avg_rt_genres$primary_genre, levels = avg_rt_genres$primary_genre[order(avg_rt_genres$average_runtime, decreasing = TRUE)])
+
 # The bar chart for this data
 avg_rt_genres_plot <- ggplot(avg_rt_genres,
                              aes(x = primary_genre, y = average_runtime))
@@ -507,18 +511,76 @@ ggplot(movies_df,
 
 # Lets see the frequencies in a tabular format
 table(movies_df$primary_genre)
-# Can we now generalise that fantasy movies run the longest? Probably no.
+# Can we now generalise that fantasy movies run the longest? Probably no, since there is only 1 movie under this genre
 
-# Let's also explore average runtime basis the number of genres a movie spans
-avg_rt_num_genres <- movies_df %>% ungroup() %>% group_by(genre_count) %>% summarise(average_runtime = mean(runtime))
-avg_rt_num_genres
-# Let's plot this data in a bar chart
-avg_rt_num_genres_plot <- ggplot(avg_rt_num_genres,
-                                 aes(x = genre_count, y = average_runtime))
-avg_rt_num_genres_plot + 
-  geom_bar(stat = "identity") + 
-  labs( title = "Movie Runtime",
-        subtitle = "Average movie runtime across number of genres a movie spans in the 100 most popular movies of 2018 on IMDB",
-        x = "number of Genres",
-        y = "Runtime (in mins)"
-  )
+# ========== runtime vs rating ==========
+# Both runtime and rating are continuous variables
+# Scale of measurement for the two variables:
+#  1. runtime - Ratio
+#  2. rating - Interval
+# rating is an interval scale measure and not ratio scale measure because a rating of 0 does not indicate absence of it. Consequently,
+# one cannot say that there is any meaning in taking ratios of ratings.
+
+# Now, let us visualise average ratings across runtime
+# But first we must bin the runtimes
+# We know that runtime ranges from 85 mins to 159 mins. Thus the Range is 74 mins.
+# Constructing bins like:
+# 1. [85 - 95), i.e. runtime includes 85 mins but less than 95 mins
+# 2. [95 - 105)
+# 3. [105 - 115)
+# 4. [115 - 125)
+# 5. [125 - 135)
+# 6. [135 - 145)
+# 7. [145 - 155)
+# 8. [155 - 165)
+movies_df <- movies_df %>% mutate(runtime_bin = ">=155 & <165")
+movies_df$runtime_bin[(movies_df$runtime >= 85 & movies_df$runtime < 95)] <- c(">=85 & <95")
+movies_df$runtime_bin[(movies_df$runtime >= 95 & movies_df$runtime < 105)] <- c(">=95 & <105")
+movies_df$runtime_bin[(movies_df$runtime >= 105 & movies_df$runtime < 115)] <- c(">=105 & <115")
+movies_df$runtime_bin[(movies_df$runtime >= 1155 & movies_df$runtime < 125)] <- c(">=115 & <125")
+movies_df$runtime_bin[(movies_df$runtime >= 125 & movies_df$runtime < 135)] <- c(">=125 & <135")
+movies_df$runtime_bin[(movies_df$runtime >= 135 & movies_df$runtime < 145)] <- c(">=135 & <145")
+movies_df$runtime_bin[(movies_df$runtime >= 145 & movies_df$runtime < 155)] <- c(">=145 & <155")
+
+# Now runtime_bin is a factor where runtimes are in order. Hence we need to specify it
+movies_df <- movies_df %>% mutate(runtime_bin = factor(runtime_bin,
+                                                          levels = c(">=85 & <95",
+                                                                     ">=95 & <105",
+                                                                     ">=105 & <115",
+                                                                     ">=115 & <125",
+                                                                     ">=125 & <135",
+                                                                     ">=135 & <145",
+                                                                     ">=145 & <155",
+                                                                     ">=155 & <165"),
+                                                          ordered = TRUE))
+
+# Let us check the structure of movies_df
+str(movies_df)
+
+# Now let us calculate the average ratings across runtimes
+avg_ratings_runtime <- movies_df %>% group_by(runtime_bin) %>% summarise(average_rating = mean(rating))
+
+# What does this plot have in store for us. Let us check it out
+avg_ratings_runtime_plot <- ggplot(avg_ratings_runtime,
+                                   aes(x = runtime_bin, y = average_rating))
+avg_ratings_runtime_plot +
+  geom_bar(stat = "identity") +
+  labs(title = "Movie Ratings",
+       subtitle = "Movie ratings spread across runtimes, for 100 most popular movies of 2018 on IMDB",
+       x = "Runtime (in mins)",
+       y = "Average User Ratings")
+# It appears as though movies with higher runtimes have higher Average User Ratings
+# A much better approach would have been to plot rating and runtime in a scatter plot. 
+# Let us draw a scatter plot for ratings and runtime to see if ratings does increase incase runtime increases
+ratings_runtime_plot <- ggplot(movies_df,
+                               aes(x = runtime, y = rating))
+ratings_runtime_plot + 
+  geom_point() +
+  geom_smooth() +
+  labs(title = "Movie Ratings across Runtime",
+       subtitle = "Movie ratings spread across runtimes, for 100 most popular movies of 2018 on IMDB",
+       x = "Runtime (in mins)",
+       y = "User Ratings")
+# What do we see? While User Ratings does increase as Runtime increases, the relation is not linear.
+# Computing Pearson's Correlation Coefficient in this case is not appropriate since the relationship is non linear.
+# It would be really interesting to investigate why Ratings increase with Runtime.
